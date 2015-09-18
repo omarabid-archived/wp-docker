@@ -41,4 +41,5 @@ RUN composer global config github-oauth.github.com {{your-github-token}} # Githu
 # Entrypoint Script
 #
 COPY config/php.sh /php.sh
+RUN chmod +x /php.sh
 ENTRYPOINT ["/php.sh"]
