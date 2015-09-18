@@ -1,0 +1,32 @@
+web:
+    container_name: web
+    build: nginx/.
+    ports:
+        - '80:80'
+    links:
+        - php:php
+    volumes:
+        - '~/local/mount/directory:/PROJECT_NAME'
+    env_file: config.env
+php:
+    container_name: php 
+    build: php/.
+    ports:
+        - '9000:9000'
+    links:
+        - db:db
+    volumes:
+        - '~/local/mount/directory:/PROJECT_NAME'
+    env_file: config.env
+db:
+    container_name: db
+    build: mysql/.
+    env_file: config.env
+backup:
+    container_name: backup
+    build: backup/. 
+    volumes_from:
+        - php
+    links:
+        - db:db
+    env_file: config.env

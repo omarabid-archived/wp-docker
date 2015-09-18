@@ -1,0 +1,35 @@
+#!/bin/bash
+
+tarsnap --fsck
+
+if ! [[ $1 ]]; then
+    echo "Restoring Last Backup"
+	date="$(tarsnap --list-archives | grep $PROJECT_NAME- | sort -t - -k 2 -g | tail -n 1 | sed 's/.*-//' )"
+else
+	date="$1"
+fi
+
+if [ -z "$MYSQL_USER" ]; then echo "Error: MYSQL_USER not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$MYSQL_DATABASE" ]; then echo "Error: MYSQL_DATABASE not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$MYSQL_PASSWORD" ]; then echo "Error: MYSQL_PASSWORD not set"; echo "Finished: FAILURE"; exit 1; fi
+
+if ! [[ $date =~ ^[a-zA-Z0-9_-]+$ ]]
+then
+  echo "The given backup name does not match the expected pattern: only characters, digits, underscore and dash are allowed ([a-zA-Z0-9_-])."
+  echo 'Finished: FAILURE'
+  exit 1
+fi
+
+# cleanup uploads folder
+echo "deleting files from uploads/"
+rm -R /$PROJECT_NAME/wp-content/uploads/*
+
+# restore files
+echo "restoring files to uploads/"
+tarsnap -x -f $PROJECT_NAME-$date -C / $PROJECT_NAME/wp-content/uploads/
+
+# restore database
+echo "restoring data from mysql dump file"
+tarsnap -O -x -f  $PROJECT_NAME-$date $PROJECT_NAME/db.sql | mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -D $MYSQL_DATABASE -h $DB_PORT_3306_TCP_ADDR 
+
+echo 'Finished: SUCCESS'

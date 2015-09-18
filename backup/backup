@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "$MYSQL_USER" ]; then echo "Error: MYSQL_USER not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$MYSQL_DATABASE" ]; then echo "Error: MYSQL_DATABASE not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$MYSQL_PASSWORD" ]; then echo "Error: MYSQL_PASSWORD not set"; echo "Finished: FAILURE"; exit 1; fi
+
+TTL="`date '+%Y%m%d%H%M%S'`"
+mkdir -p /$PROJECT_NAME/wp-content/uploads
+
+echo 'creating database dump'
+mysqldump -h $DB_PORT_3306_TCP_ADDR --add-drop-table -u$MYSQL_USER -p $MYSQL_DATABASE --password=$MYSQL_PASSWORD > /$PROJECT_NAME/db.sql
+
+echo 'uploading to tarsnap'
+tarsnap --fsck
+tarsnap -c -f $PROJECT_NAME-$TTL /$PROJECT_NAME/wp-content/uploads /$PROJECT_NAME/db.sql
+
+echo 'Finished: SUCCESS'
