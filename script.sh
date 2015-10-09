@@ -28,7 +28,7 @@ case "$1" in
 		echo "Stopping your Virtual Environment $2"
 		docker-compose -p "$2" kill 
 		;;
-	destory)
+	destroy)
 		echo "Destroying Docker Containers for $2"
 		docker-compose -p "$2" rm
 		;;
