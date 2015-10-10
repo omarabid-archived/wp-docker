@@ -34,10 +34,10 @@ case "$1" in
 		;;
 	reset)
 		sudo git pull origin master
-		./script.sh stop
-		./script.sh destroy
-		./script.sh build
-		./script.sh run
+		./script.sh stop "$2"
+		./script.sh destroy "$2"
+		./script.sh build "$2"
+		./script.sh run "$2"
 		;;
 	backup)
 		docker exec backup backup
