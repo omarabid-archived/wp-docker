@@ -2,6 +2,10 @@ FROM nginx:1.9.0
 
 LABEL version="1.0"
 
+# Run updates and install wget
+RUN apt-get update -y && \
+	apt-get install -y wget
+
 COPY config/nginx.conf /etc/nginx/nginx.conf
 COPY config/default.conf /etc/nginx/conf.d/default.conf
 
